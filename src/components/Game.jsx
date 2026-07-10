@@ -1,6 +1,7 @@
 import './Game.css';
 import { useState, useRef, useEffect } from "react";
 import { validateWord } from "../services/api";
+import { useTimer } from "../hooks/useTimer";
 
 
 const Game = () => {
@@ -11,8 +12,19 @@ const Game = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [shake, setShake] = useState(false);
+    const [gameOver, setGameOver] = useState(false);
+    const {time,start,pause,resume,stop} = useTimer(15, () => {setGameOver(true);});
 
     const inputRef = useRef(null);
+
+    function showError(message) {
+        setError(message);
+        setShake(true);
+
+        setTimeout(() => {
+            setShake(false);
+        }, 400);
+    }
 
     useEffect(() => {
         if (!loading) {
@@ -32,11 +44,7 @@ const Game = () => {
 
         if (words.includes(palabraActual)) {
             setWord("");
-            setError("Palabra actual ya fue utilizada")
-            setShake(true);
-            setTimeout(() => {
-                setShake(false);
-            }, 400);
+            showError("La palabra ya fue utilizada");
             return;
         }
 
@@ -45,16 +53,13 @@ const Game = () => {
 
             if (palabraActual[0] !== ultimaPalabra.at(-1)) {
                 setWord("");
-                setError(`La palabra debe comenzar con letra ${ultimaPalabra.at(-1).toUpperCase()}`)
-                setShake(true);
-                setTimeout(() => {
-                    setShake(false);
-                }, 400);
+                showError(`La palabra debe comenzar con ${ultimaPalabra.at(-1).toUpperCase()}`);
                 return;
             }
         }
 
         setLoading(true);
+        pause();
         
         try {
             const exists = await validateWord(palabraActual);
@@ -62,17 +67,15 @@ const Game = () => {
             if (exists) {
                 setWords([...words, palabraActual]);
                 setScore(score + palabraActual.length);
-            }
-            if (!exists){
-                setError("La palabra no existe en el diccionario")
-                setShake(true);
-                setTimeout(() => {
-                    setShake(false);
-                }, 400);
+                start();
+            } else {
+                showError("La palabra no existe");
+                resume();
             }
             setWord("");
         } catch (error) {
             console.error(error);
+            resume();
         } finally {
             setLoading(false);
         }
@@ -85,70 +88,68 @@ const Game = () => {
 
 
         <div className="">
+            <h3>Tiempo: {time}</h3>
+            <div className="fw-bold fs-3">Puntaje: {score}</div>
+            {words.length > 0 && (
+                    <div className='info-letra-actual d-flex'>
+                        La próxima palabra debe comenzar con la letra: {" "}
+                        <div className='fw-bold fs-4'>  {words.at(-1).at(-1).toUpperCase()}</div>
+                    </div>
+                )}  
+            <form onSubmit={handleSubmit} className="mt-4">
 
-          <div className="fw-bold fs-3">Puntaje: {score}</div>
-          {words.length > 0 && (
-                <div className='info-letra-actual d-flex'>
-                    La próxima palabra debe comenzar con la letra: {" "}
-                    <div className='fw-bold fs-4'>  {words.at(-1).at(-1).toUpperCase()}</div>
+                <div className={`input-group ${shake ? "input-shake" : ""}`}>
+
+                <input
+                    autoFocus={true}
+                    ref={inputRef}
+                    type="text"
+                    className="form-control"
+                    name="palabra"
+                    autoComplete="off"
+                    placeholder={
+                        words.length === 0
+                            ? "Ingrese una palabra"
+                            : `Debe comenzar con "${words.at(-1).at(-1)}"`
+                    }
+                    
+                    disabled={loading}
+                    value={word}
+                    onChange={(e) => setWord(e.target.value)}
+                />
+
+                <button className="btn btn-primary" disabled={loading}>
+                    {loading ? "Validando..." : "Enviar"}
+                </button>
+
                 </div>
-            )}  
-          <form onSubmit={handleSubmit} className="mt-4">
 
-            <div className={`input-group ${shake ? "input-shake" : ""}`}>
+            </form>
+            {error && (
+                        <div className="text-danger text-center fw-bold mt-1 mb-1">
+                                {error}
+                            </div>
+                )}
 
-              <input
-                autoFocus={true}
-                ref={inputRef}
-                type="text"
-                className="form-control"
-                name="palabra"
-                autoComplete="off"
-                placeholder={
-                    words.length === 0
-                        ? "Ingrese una palabra"
-                        : `Debe comenzar con "${words.at(-1).at(-1)}"`
-                }
-                
-                disabled={loading}
-                value={word}
-                onChange={(e) => setWord(e.target.value)}
-              />
+            <div className='py-2'>Palabras ingresadas</div>
 
-              <button className="btn btn-primary" disabled={loading}>
-                {loading ? "Validando..." : "Enviar"}
-              </button>
+            {words.length === 0 ? (
+                <p className="text-muted">Todavía no hay palabras.</p>
+            ) : (
+                <div className="d-flex flex-wrap align-items-center">
+                {words.map((word, index) => (
+                    <div key={index} className="d-flex align-items-center me-2 mb-2">
+                    <div className='border border-info rounded-pill px-2 py-1 bg-info-subtle'>{word}</div>
 
-            </div>
-
-          </form>
-          {error && (
-                    <div className="text-danger text-center fw-bold mt-1 mb-1">
-                            {error}
-                        </div>
+                    {index < words.length - 1 && (
+                        <div className="mx-2">→</div>
+                    )}
+                    </div>
+                ))}
+                </div>
             )}
 
-          <div className='py-2'>Palabras ingresadas</div>
-
-          {words.length === 0 ? (
-            <p className="text-muted">Todavía no hay palabras.</p>
-          ) : (
-            <div className="d-flex flex-wrap align-items-center">
-            {words.map((word, index) => (
-                <div key={index} className="d-flex align-items-center me-2 mb-2">
-                <div className='border border-info rounded-pill px-2 py-1 bg-info-subtle'>{word}</div>
-
-                {index < words.length - 1 && (
-                    <div className="mx-2">→</div>
-                )}
-                </div>
-            ))}
-            </div>
-          )}
-
         </div>
-
-
     </div>
     )
 };
