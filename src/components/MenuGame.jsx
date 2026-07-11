@@ -1,4 +1,4 @@
-import './InicioGame.css';
+import './MenuGame.css';
 import { useNavigate } from 'react-router';
 import { useState } from "react";
 

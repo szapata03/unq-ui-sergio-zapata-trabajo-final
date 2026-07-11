@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import { Routes, Route, Navigate } from 'react-router';
 import Game from "./components/Game.jsx"
-import InicioGame from "./components/InicioGame.jsx"
+import InicioGame from "./components/MenuGame.jsx"
 import Scoreboard from "./components/Scoreboard.jsx"
 
 function App() {

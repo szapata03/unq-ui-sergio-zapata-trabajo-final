@@ -2,6 +2,9 @@ import './Game.css';
 import { useState, useRef, useEffect } from "react";
 import { validateWord } from "../services/api";
 import { useTimer } from "../hooks/useTimer";
+import { useNavigate } from "react-router";
+import GameOverModal from "../components/GameOverModal";
+import { saveScore } from "../services/storage";
 
 
 const Game = () => {
@@ -14,8 +17,31 @@ const Game = () => {
     const [shake, setShake] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const {time,start,pause,resume,stop} = useTimer(15, () => {setGameOver(true);});
+    const navigate = useNavigate();
 
     const inputRef = useRef(null);
+
+    function saveResult(name) {
+        saveScore(
+            name.trim() || "Player",
+            score
+        );
+    }
+
+    function restartGame() {
+
+        setWord("");
+        setWords([]);
+        setScore(0);
+        setLoading(false);
+        setError("");
+        setShake(false);
+        setGameOver(false);
+
+        stop();
+
+        inputRef.current?.focus();
+    }
 
     function showError(message) {
         setError(message);
@@ -112,13 +138,12 @@ const Game = () => {
                             ? "Ingrese una palabra"
                             : `Debe comenzar con "${words.at(-1).at(-1)}"`
                     }
-                    
-                    disabled={loading}
+                    disabled={loading || gameOver}
                     value={word}
                     onChange={(e) => setWord(e.target.value)}
                 />
 
-                <button className="btn btn-primary" disabled={loading}>
+                <button className="btn btn-primary" disabled={loading || gameOver}>
                     {loading ? "Validando..." : "Enviar"}
                 </button>
 
@@ -150,6 +175,23 @@ const Game = () => {
             )}
 
         </div>
+        {gameOver && (
+            <GameOverModal
+                score={score}
+                onRetry={(name) => {
+                    saveResult(name);
+                    restartGame();
+                }}
+                onMenu={(name) => {
+                    saveResult(name);
+                    navigate("/");
+                }}
+                onScoreboard={(name) => {
+                    saveResult(name);
+                    navigate("/scoreboard");
+                }}
+            />
+        )}
     </div>
     )
 };
