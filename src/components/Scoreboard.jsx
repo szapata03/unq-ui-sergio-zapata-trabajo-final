@@ -9,21 +9,15 @@ const Scoreboard = () => {
 
     return (
         <div className="container py-5">
-
             <div className="titulo-scoreboard">
                 🏆 Mejores Puntajes
             </div>
-
             {scoreboard.length === 0 ? (
-
                 <div className="sin-puntajes">
                     Todavía no hay puntajes registrados.
                 </div>
-
             ) : (
-
                 <div className="tabla-scoreboard">
-
                     <div className="fila encabezado">
                         <div>#</div>
                         <div>Jugador</div>
@@ -31,7 +25,6 @@ const Scoreboard = () => {
                     </div>
 
                     {scoreboard.map(([name, score], index) => (
-
                         <div className="fila" key={index}>
                             <div>{index + 1}</div>
                             <div>{name}</div>
@@ -40,7 +33,6 @@ const Scoreboard = () => {
                     ))}
                 </div>
             )}
-
             <button
                 className="boton-volver mt-4"
                 onClick={() => navigate("/")}
