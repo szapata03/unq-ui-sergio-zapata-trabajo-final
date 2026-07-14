@@ -62,7 +62,10 @@ const Game = () => {
 
         const palabraActual = word.trim().toLowerCase();
 
-        if (!palabraActual) return;
+        if (!palabraActual) {
+            showError("La palabra no puede ser vacia")
+            return
+        };
 
         if (words.includes(palabraActual)) {
             setWord("");
@@ -139,7 +142,7 @@ const Game = () => {
                         <div className="text-danger text-center fw-bold mt-1 mb-1">
                                 {error}
                             </div>
-                )}
+            )}
 
             <div className='py-2'>Palabras ingresadas</div>
             {words.length === 0 ? (
@@ -147,11 +150,10 @@ const Game = () => {
             ) : (
                 <div className="d-flex flex-wrap align-items-center">
                 {words.map((word, index) => (
-                    <div key={index} className="d-flex align-items-center me-2 mb-2">
+                    <div key={index} className="d-flex align-items-center mb-2">
                     <div className='border border-info rounded-pill px-2 py-1 bg-info-subtle'>{word}</div>
-
                     {index < words.length - 1 && (
-                        <div className="mx-2">→</div>
+                        <div className="mx-1">→</div>
                     )}
                     </div>
                 ))}
@@ -162,6 +164,7 @@ const Game = () => {
         {gameOver && (
             <GameOverModal
                 score={score}
+                words={words}
                 onRetry={(name) => {
                     saveResult(name);
                     restartGame();
