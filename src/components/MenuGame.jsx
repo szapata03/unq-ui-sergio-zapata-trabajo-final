@@ -1,8 +1,7 @@
 import './MenuGame.css';
 import { useNavigate } from 'react-router';
-import { useState } from "react";
 
-const InicioGame = () => {
+const MenuGame = () => {
     const navigate = useNavigate();
     
         return (
@@ -77,5 +76,5 @@ const InicioGame = () => {
     );
 }
 
-export default InicioGame;
+export default MenuGame;
 
