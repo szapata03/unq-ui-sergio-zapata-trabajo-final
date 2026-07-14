@@ -105,80 +105,88 @@ const Game = () => {
     return(
     <div className="container py-5 ">
       <div className="text-center mb-4 fw-bold fs-1">Palabras Encadenadas</div>
-        <div className="">
-            <h3>Tiempo: {time}</h3>
-            <div className="fw-bold fs-3">Puntaje: {score}</div>
-            {words.length > 0 && (
-                    <div className='info-letra-actual d-flex'>
-                        La próxima palabra debe comenzar con la letra: {" "}
-                        <div className='fw-bold fs-4'>  {words.at(-1).at(-1).toUpperCase()}</div>
+        <div className="row justify-content-center">
+            <div className="col-lg-8 col-xl-7">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div className="fs-2 fw-bold">
+                        ⏱ Tiempo: {time}
                     </div>
-                )}  
-            <form onSubmit={handleSubmit} className="mt-4">
-                <div className={`input-group ${shake ? "input-shake" : ""}`}>
-                    <input
-                        autoFocus={true}
-                        ref={inputRef}
-                        type="text"
-                        className="form-control"
-                        name="palabra"
-                        autoComplete="off"
-                        placeholder={
-                            words.length === 0
-                                ? "Ingrese una palabra"
-                                : `Debe comenzar con "${words.at(-1).at(-1)}"`
-                        }
-                        disabled={loading || gameOver}
-                        value={word}
-                        onChange={(e) => setWord(e.target.value)}
-                    />
-                    <button className="btn btn-primary" disabled={loading || gameOver}>
-                        {loading ? "Validando..." : "Enviar"}
-                    </button>
-                </div>
-            </form>
-
-            {error && (
-                        <div className="text-danger text-center fw-bold mt-1 mb-1">
-                                {error}
-                            </div>
-            )}
-
-            <div className='py-2'>Palabras ingresadas</div>
-            {words.length === 0 ? (
-                <p className="text-muted">Todavía no hay palabras.</p>
-            ) : (
-                <div className="d-flex flex-wrap align-items-center">
-                {words.map((word, index) => (
-                    <div key={index} className="d-flex align-items-center mb-2">
-                    <div className='border border-info rounded-pill px-2 py-1 bg-info-subtle'>{word}</div>
-                    {index < words.length - 1 && (
-                        <div className="mx-1">→</div>
-                    )}
+                    <div className="fs-2 fw-bold">
+                        ⭐ Puntaje: {score}
                     </div>
-                ))}
                 </div>
+                {words.length > 0 && (
+                        <div className='info-letra-actual d-flex'>
+                            La próxima palabra debe comenzar con la letra: {" "}
+                            <div className='fw-bold fs-4'>  {words.at(-1).at(-1).toUpperCase()}</div>
+                        </div>
+                    )}  
+                <form onSubmit={handleSubmit} className="mt-4">
+                    <div className={`input-group ${shake ? "input-shake" : ""}`}>
+                        <input
+                            autoFocus={true}
+                            ref={inputRef}
+                            type="text"
+                            className="form-control"
+                            name="palabra"
+                            autoComplete="off"
+                            placeholder={
+                                words.length === 0
+                                    ? "Ingrese una palabra"
+                                    : `Debe comenzar con "${words.at(-1).at(-1)}"`
+                            }
+                            disabled={loading || gameOver}
+                            value={word}
+                            onChange={(e) => setWord(e.target.value)}
+                        />
+                        <button className="btn btn-primary" disabled={loading || gameOver}>
+                            {loading ? "Validando..." : "Enviar"}
+                        </button>
+                    </div>
+                </form>
+
+                {error && (
+                            <div className="text-danger text-center fw-bold mt-1 mb-1">
+                                    {error}
+                                </div>
+                )}
+
+                <div className='py-2 px-1'>Palabras ingresadas</div>
+                {words.length === 0 ? (
+                    <p className="text-muted px-1">Todavía no hay palabras.</p>
+                ) : (
+                    <div className="d-flex flex-wrap align-items-center">
+                    {words.map((word, index) => (
+                        <div key={index} className="d-flex align-items-center mb-2">
+                        <div className='border border-info rounded-pill px-2 py-1 bg-info-subtle'>{word}</div>
+                        {index < words.length - 1 && (
+                            <div className="mx-1">→</div>
+                        )}
+                        </div>
+                    ))}
+                    </div>
+                )}
+            </div>
+
+            {gameOver && (
+                <GameOverModal
+                    score={score}
+                    words={words}
+                    onRetry={(name) => {
+                        saveResult(name);
+                        restartGame();
+                    }}
+                    onMenu={(name) => {
+                        saveResult(name);
+                        navigate("/");
+                    }}
+                    onScoreboard={(name) => {
+                        saveResult(name);
+                        navigate("/scoreboard");
+                    }}
+                />
             )}
         </div>
-
-        {gameOver && (
-            <GameOverModal
-                score={score}
-                words={words}
-                onRetry={(name) => {
-                    saveResult(name);
-                    restartGame();
-                }}
-                onMenu={(name) => {
-                    saveResult(name);
-                    navigate("/");
-                }}
-                onScoreboard={(name) => {
-                    saveResult(name);
-                    navigate("/scoreboard");
-                }}
-            />
-        )}
     </div>
 )};
 
